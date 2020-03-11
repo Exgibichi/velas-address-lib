@@ -9,8 +9,7 @@ function ethToVlxAddress(entrada) {
   for (var i = 0; i < ALPHABET_16.length; i += 1) {
     ALP_16_MAP[ALPHABET_16.charAt(i)] = i;
   }
-  entrada = entrada.replace('0x', '');
-  entrada = entrada.toUpperCase().replace('0x', '');
+  entrada = entrada.toUpperCase().replace(/0x/i, '');
   for (var t = entrada.length - 1; t >= 0; t = t - 3) {
     if (t > 1) {
       var hex1 = ALP_16_MAP[entrada.charAt(t - 2)];
