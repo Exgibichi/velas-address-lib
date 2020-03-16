@@ -99,7 +99,7 @@ function vlxToEthAddress(string) {
   return "0x" + toHexString(bytes.reverse());
 }
 
-const addr = "32Be343B94f860124dC4fEe278FDCBD38C102D88";
+const addr = "0x32Be343B94f860124dC4fEe278FDCBD38C102D88";
 const encaddr = "Vi18WoPnMwQgcnqKKEuEEtaA51R9";
 
 console.log({ e: ethToVlxAddress(addr) });
