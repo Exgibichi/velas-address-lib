@@ -28,11 +28,11 @@ namespace Base58Check
         }
 
         /// <summary>
-        /// Encodes data in plain Base58, without any checksum.
+        /// Encodes data in plain vlx from eth, without any checksum.
         /// </summary>
         /// <param name="data">The data to be encoded</param>
         /// <returns></returns>
-        public static string EncodePlain(byte[] data)
+        public static string EthToVlx(byte[] data)
         {
             // Decode byte[] to BigInteger
             var intData = data.Aggregate<byte, BigInteger>(0, (current, t) => current * 256 + t);
@@ -74,11 +74,11 @@ namespace Base58Check
         }
 
         /// <summary>
-        /// Decodes data in plain Base58, without any checksum.
+        /// Decodes data in plain vlx to eth, without any checksum.
         /// </summary>
         /// <param name="data">Data to be decoded</param>
         /// <returns>Returns decoded data if valid; throws FormatException if invalid</returns>
-        public static byte[] DecodePlain(string data)
+        public static byte[] VlxToEth(string data)
         {
             // Decode Base58 string to BigInteger 
             BigInteger intData = 0;

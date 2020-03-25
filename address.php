@@ -1,15 +1,15 @@
 <?php
-function ethToVlxAddress(string $string): string
+function ethToVlx(string $address): string
 {
     $SIGNATURE = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
     $BASE58_LENGTH = '58';
     $BASE256_LENGTH = '256';
 
-    $string = (string) $string;
+    $string = (string) $address;
     $string = hex2bin(str_replace('0x', '',  $string));
 
     if (empty($string)) {
-        return '';
+        throw new InvalidArgumentException('Empty address');
     }
 
     $bytes = array_values(array_map(function ($byte) {
@@ -50,10 +50,10 @@ function ethToVlxAddress(string $string): string
     return 'V' . $base58;
 }
 
-function vlxToEthAddress(string $base58): string
+function vlxToEth(string $address): string
 {
-    if (empty($base58)) {
-        return '';
+    if (empty($address)) {
+        throw new InvalidArgumentException('Empty address');
     }
 
     $SIGNATURE = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -61,12 +61,12 @@ function vlxToEthAddress(string $base58): string
     $BASE256_LENGTH = '256';
 
     $indexes = array_flip(str_split($SIGNATURE));
-    $chars = str_split($base58);
+    $chars = str_split($address);
     array_shift($chars);
     // Check for invalid characters in the supplied base58 string
     foreach ($chars as $char) {
         if (isset($indexes[$char]) === false) {
-            throw new InvalidArgumentException('Argument $base58 contains invalid characters. ($char: "' . $char . '" | $base58: "' . $base58 . '") ');
+            throw new InvalidArgumentException('Argument $base58 contains invalid characters. ($char: "' . $char . '" | $base58: "' . $address . '") ');
         }
     }
 
@@ -98,9 +98,10 @@ function vlxToEthAddress(string $base58): string
     return '0x' . bin2hex($output);
 }
 
+
 $eth = "0x32Be343B94f860124dC4fEe278FDCBD38C102D88";
-$vlx = ethToVlxAddress($eth);
+$vlx = ethToVlx($eth);
 echo "ETH: " . $eth . "\r\n";
 echo "VLX: " . $vlx . "\r\n";
-$restoredEth = vlxToEthAddress($vlx);
+$restoredEth = vlxToEth($vlx);
 echo "Restored Eth: " . $restoredEth . "\r\n";

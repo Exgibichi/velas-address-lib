@@ -14,10 +14,10 @@ namespace EncodeDecodeHexBase58
             string text = "Vi18WoPnMwQgcnqKKEuEEtaA51R9";
 
             WriteLine("Encoding = ");
-            WriteLine(Base58CheckEncoding.EncodePlain(bitTest));
+            WriteLine(Base58CheckEncoding.EthToVlx(bitTest));
             WriteLine();
             WriteLine("Decoding = ");
-            WriteLine(BitConverter.ToString(Base58CheckEncoding.DecodePlain(Base58CheckEncoding.GetCorrectString(text))));
+            WriteLine(BitConverter.ToString(Base58CheckEncoding.VlxToEth(Base58CheckEncoding.GetCorrectString(text))));
             ReadKey();
         }
     }

@@ -15,8 +15,8 @@ function maxEncodedLen(n) {
   return Math.ceil(n / BITS_PER_DIGIT);
 }
 
-function ethToVlxAddress(address) {
-  buffer = Buffer.from(address.replace(/^0x/i, ""), "hex");
+function ethToVlx(address_string) {
+  buffer = Buffer.from(address_string.replace(/^0x/i, ""), "hex");
   if (buffer.length === 0) return "";
 
   var i,
@@ -43,7 +43,6 @@ function ethToVlxAddress(address) {
   }
 
   var zeros = maxEncodedLen(buffer.length * 8) - digits.length - 1;
-  // deal with leading zeros
   for (i = 0; i < zeros; i++) digits.push(0);
 
   return (
@@ -63,9 +62,9 @@ function toHexString(byteArray) {
   }).join("");
 }
 
-function vlxToEthAddress(string) {
-  if (string.length === 0) return [];
-  string = string.replace("V", "");
+function vlxToEth(address_string) {
+  if (address_string.length === 0) return [];
+  string = address_string.replace("V", "");
   var i,
     j,
     bytes = [0];
@@ -93,15 +92,16 @@ function vlxToEthAddress(string) {
 
   var zeros = decodedLen(string.length) - bytes.length;
 
-  // deal with leading zeros
   for (i = 0; i < zeros; i++) bytes.push(0);
 
   return "0x" + toHexString(bytes.reverse());
 }
 
+
+
 const addr = "0x32Be343B94f860124dC4fEe278FDCBD38C102D88";
 const encaddr = "Vi18WoPnMwQgcnqKKEuEEtaA51R9";
 
-console.log({ e: ethToVlxAddress(addr) });
-console.log({ d: vlxToEthAddress(ethToVlxAddress(addr)) });
-console.log({ d: vlxToEthAddress(encaddr) });
+console.log({ e: ethToVlx(addr) });
+console.log({ d: vlxToEth(ethToVlx(addr)) });
+console.log({ d: vlxToEth(encaddr) });
