@@ -1,11 +1,15 @@
-var ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-var ALPHABET_MAP = {};
-for (var i = 0; i < ALPHABET.length; i++) {
+const crypto = require("crypto");
+
+const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const ALPHABET_MAP = {};
+
+for (let i = 0; i < ALPHABET.length; i++) {
   ALPHABET_MAP[ALPHABET.charAt(i)] = i;
 }
-var BASE = 58;
 
-var BITS_PER_DIGIT = Math.log(BASE) / Math.log(2);
+const BASE = 58;
+
+const BITS_PER_DIGIT = Math.log(BASE) / Math.log(2);
 
 function decodedLen(n) {
   return Math.floor((n * BITS_PER_DIGIT) / 8);
@@ -15,11 +19,25 @@ function maxEncodedLen(n) {
   return Math.ceil(n / BITS_PER_DIGIT);
 }
 
-function ethToVlx(address_string) {
-  buffer = Buffer.from(address_string.replace(/^0x/i, ""), "hex");
-  if (buffer.length === 0) return "";
+function sha256(string) {
+  return crypto
+    .createHash("sha256")
+    .update(string)
+    .digest("hex");
+}
 
-  var i,
+function ethToVlx(address_string) {
+  const clean_address = address_string.replace(/^0x/i, "").toLowerCase();
+  const checksum = sha256(sha256(clean_address)).substring(0, 8);
+
+  const long_address = clean_address + checksum;
+  buffer = Buffer.from(long_address, "hex");
+
+  if (buffer.length === 0) {
+    throw new Error('Invalid address')
+  }
+
+  let i,
     j,
     digits = [0];
   for (i = 0; i < buffer.length; i++) {
@@ -27,7 +45,7 @@ function ethToVlx(address_string) {
 
     digits[0] += buffer[i];
 
-    var carry = 0;
+    let carry = 0;
     for (j = 0; j < digits.length; ++j) {
       digits[j] += carry;
 
@@ -42,8 +60,8 @@ function ethToVlx(address_string) {
     }
   }
 
-  var zeros = maxEncodedLen(buffer.length * 8) - digits.length - 1;
-  for (i = 0; i < zeros; i++) digits.push(0);
+  const zeros = maxEncodedLen(buffer.length * 8) - digits.length - 1;
+  for (let i = 0; i < zeros; i++) digits.push(0);
 
   return (
     "V" +
@@ -56,27 +74,21 @@ function ethToVlx(address_string) {
   );
 }
 
-function toHexString(byteArray) {
-  return Array.from(byteArray, function(byte) {
-    return ("0" + (byte & 0xff).toString(16)).slice(-2);
-  }).join("");
-}
-
 function vlxToEth(address_string) {
-  if (address_string.length === 0) return [];
+  if (address_string.length === 0) return null;
   string = address_string.replace("V", "");
   var i,
     j,
     bytes = [0];
-  for (i = 0; i < string.length; i++) {
-    var c = string[i];
+  for (let i = 0; i < string.length; i++) {
+    const c = string[i];
     if (!(c in ALPHABET_MAP)) throw new Error("Non-base58 character");
 
     for (j = 0; j < bytes.length; j++) bytes[j] *= BASE;
     bytes[0] += ALPHABET_MAP[c];
 
-    var carry = 0;
-    for (j = 0; j < bytes.length; ++j) {
+    let carry = 0;
+    for (let j = 0; j < bytes.length; ++j) {
       bytes[j] += carry;
 
       carry = bytes[j] >> 8;
@@ -90,18 +102,34 @@ function vlxToEth(address_string) {
     }
   }
 
-  var zeros = decodedLen(string.length) - bytes.length;
+  const zeros = decodedLen(string.length) - bytes.length;
 
-  for (i = 0; i < zeros; i++) bytes.push(0);
+  for (let i = 0; i < zeros; i++) {
+    bytes.push(0);
+  }
 
-  return "0x" + toHexString(bytes.reverse());
+  const long_address = Buffer.from(bytes.reverse()).toString("hex");
+  const strings = long_address.match(/([0-9abcdef]+)([0-9abcdef]{8})/);
+
+  if (strings.length !== 3) {
+    throw new Error("Invalid address");
+  }
+
+  const checksum = sha256(sha256(strings[1])).substring(0, 8);
+
+  if (strings[2] !== checksum) {
+    throw new Error("Invalid checksum");
+  }
+
+
+
+  return "0x" + strings[1];
 }
 
-
-
 const addr = "0x32Be343B94f860124dC4fEe278FDCBD38C102D88";
-const encaddr = "Vi18WoPnMwQgcnqKKEuEEtaA51R9";
+const encaddr = "V5dJeCa7bmkqmZF53TqjRbnB4fG6hxuu4f";
 
 console.log({ e: ethToVlx(addr) });
 console.log({ d: vlxToEth(ethToVlx(addr)) });
 console.log({ d: vlxToEth(encaddr) });
+console.log({ valid: vlxToEth(ethToVlx(addr)) === addr.toLowerCase() });
