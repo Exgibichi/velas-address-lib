@@ -5,8 +5,31 @@ defmodule Vlx_address do
   Encodes the given ethereum address to vlx format.
   """
   def eth_to_vlx(address) do
+    stripped_address =
+      case address do
+        "0x" <> addr when byte_size(addr) == 40 -> String.downcase addr
+        _ -> raise ArgumentError, message: "Invalid address"
+      end
+
+    checksum =
+      stripped_address
+      |> sha256
+      |> sha256
+      |> String.slice(0, 8)
+
+    parsed_address =
+      stripped_address <> checksum
+      |> Integer.parse(16)
+
+    case parsed_address do
+      {is_integer, ""} -> nil
+      _ -> raise ArgumentError, message: "Invalid address"
+    end
+
     encoded_address =
-      address |> String.trim_leading("0x") |> Integer.parse(16) |> elem(0) |> b58_encode()
+      parsed_address
+      |> elem(0)
+      |> b58_encode()
 
     "V" <> encoded_address
   end
@@ -15,14 +38,33 @@ defmodule Vlx_address do
   Decodes the given vlx address to ethereum format.
   """
   def vlx_to_eth(address) do
-    encoded_address =
+    decoded_address =
       address
       |> String.trim_leading("V")
       |> b58_decode()
       |> Integer.to_string(16)
+      |> String.downcase
       |> String.pad_leading(40, "0")
 
-    ("0x" <> encoded_address) |> String.downcase()
+    strings = Regex.run(~r/([0-9abcdef]+)([0-9abcdef]{8})$/, decoded_address)
+
+    [_, short_address, extracted_checksum] =
+      case strings do
+        list when length(list) == 3 -> list
+        _ -> raise ArgumentError, message: "Invalid address"
+      end
+
+    checksum = 
+      short_address
+      |> sha256
+      |> sha256
+      |> String.slice(0, 8)      
+
+    if extracted_checksum != checksum do
+      raise ArgumentError, message: "Invalid checksum"
+    end
+
+    ("0x" <> short_address) |> String.downcase()
   end
 
   @doc """
@@ -46,5 +88,13 @@ defmodule Vlx_address do
 
   defp _decode([c | cs], acc) do
     _decode(cs, acc * 58 + Enum.find_index(@alphabet, &(&1 == c)))
+  end
+
+  @doc """
+  Sha256 and convert to hex
+  """
+  defp sha256(x) do
+    :crypto.hash(:sha256, x) 
+    |> Base.encode16(case: :lower)
   end
 end
