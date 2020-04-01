@@ -6,7 +6,10 @@ function ethToVlx(string $address): string
     $BASE256_LENGTH = '256';
 
     $string = (string) $address;
-    $string = hex2bin(str_replace('0x', '',  $string));
+    $string = strtolower(str_replace('0x', '', $string));
+    $checksum = substr(hash("sha256", hash("sha256", $string)), 0, 8);
+    $long_address = $string . $checksum;
+    $string = hex2bin($long_address);
 
     if (empty($string)) {
         throw new InvalidArgumentException('Empty address');
@@ -94,8 +97,16 @@ function vlxToEth(string $address): string
         }
         break;
     }
+    $long_address = bin2hex($output);
+    $address_checksum = substr($long_address, 40, 8);
+    $address = substr($long_address, 0, -8);
+    $checksum = substr(hash("sha256", hash("sha256", $address)), 0, 8);
 
-    return '0x' . bin2hex($output);
+    if ($checksum !== $address_checksum) {
+        throw new InvalidArgumentException('Invalid address');
+    }
+
+    return '0x' . $address;
 }
 
 

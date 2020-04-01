@@ -109,7 +109,7 @@ function vlxToEth(address_string) {
   }
 
   const long_address = Buffer.from(bytes.reverse()).toString("hex");
-  const strings = long_address.match(/([0-9abcdef]+)([0-9abcdef]{8})/);
+  const strings = long_address.match(/([0-9abcdef]+)([0-9abcdef]{8})/i);
 
   if (strings.length !== 3) {
     throw new Error("Invalid address");
