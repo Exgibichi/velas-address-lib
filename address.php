@@ -115,7 +115,8 @@ $eth_addresses = [
     "0x0000000000000000000000000000000000000001",
     "0x1000000000000000000000000000000000000000",
     "0x0000000000000000000000000000000000000000",
-    "0xffffffffffffffffffffffffffffffffffffffff"
+    "0xffffffffffffffffffffffffffffffffffffffff",
+    "0xf00000000000000000000000000000000000000f"
 ];
 
 $vlx_addresses = [
@@ -125,7 +126,8 @@ $vlx_addresses = [
     "V111111111111111111111111111CdXjnE",
     "V2Tbp525fpnBRiSt4iPxXkxMyf5ZX7bGAJ",
     "V1111111111111111111111111113iMDfC",
-    "VQLbz7JHiBTspS962RLKV8GndWFwdcRndD"
+    "VQLbz7JHiBTspS962RLKV8GndWFwdcRndD",
+    "VNt1B3HD3MghPihCxhwMxNKRerBR4azAjj"
 ];
 
 foreach ($eth_addresses as $i => $eth_address) {
