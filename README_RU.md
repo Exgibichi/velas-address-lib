@@ -9,14 +9,14 @@
 ```javascript
 const addr = "0x32Be343B94f860124dC4fEe278FDCBD38C102D88";
 
-console.log("Encoded address:", ethToVlx(addr)); // Vi18WoPnMwQgcnqKKEuEEtaA51R9
+console.log("Encoded address:", ethToVlx(addr)); // V5dJeCa7bmkqmZF53TqjRbnB4fG6hxuu4f
 ```
 ## Декодирование
 Для отправки транзакций пользователя мы берем адрес в формате веласа и декодируем функцией `vlxToEth/VlxToEth/vlx_to_eth`
 
 ### Пример
 ```javascript
-const addr = "Vi18WoPnMwQgcnqKKEuEEtaA51R9";
+const addr = "V5dJeCa7bmkqmZF53TqjRbnB4fG6hxuu4f";
 
-console.log("Decoded address:", vlxToEth(addr)); // 0x32Be343B94f860124dC4fEe278FDCBD38C102D88
+console.log("Decoded address:", vlxToEth(addr)); // 0x32be343b94f860124dc4fee278fdcbd38c102d88
 ```
